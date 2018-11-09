@@ -1,0 +1,49 @@
+%它们的重量分别是 c
+%它们的价值分别是 v
+%现在给你个承重为 n 的背包，如何让背包里装入的物品具有最大的价值总和？
+c=[2 3 1];
+v=[31 47 15];
+n=7;
+Knapsack(c,v,n)
+
+
+function Knapsack(c,v,n) %c为各自重量，v为各自价值，n为总称重
+m=length(c); %求物品种类个数
+f=zeros(m,n+1); %记录价值
+x=zeros(m,n+1); %记录个数 xij表示第i个物品在剩余称重为j时，最优情况下应放入的个数
+
+for i=m:-1:1
+    for S=0:n %S表示放入第i个物品时剩余的空间称重为S
+        if (i==m)
+            f(i,S+1)=v(i)*floor(S/c(i));
+            x(i,S+1)=floor(S/c(i));
+        else
+            xMax=floor(S/c(i));
+            ff=zeros(xMax+1,1);
+            for k=0:xMax
+                ff(k+1)=v(i)*k+f(i+1,S-c(i)*k+1);
+            end
+            [f(i,S+1),index]=max(ff);
+            x(i,S+1)=index-1;
+        end
+    end
+end
+
+[optValue,index]=max(f(1,:));%找出最大值，及其第一次出现的位置
+pos=index;
+fprintf('optimal solution:%d\n',optValue);
+
+xx=zeros(m,1);  %记录价值最大下的物品分别个数
+xx(1)=x(1,index);
+tempS=index;
+for i=2:m %寻找价值最大下物品个数
+   xx(i)=x(i,tempS-c(i-1)*xx(i-1));
+   tempS=tempS-c(i-1)*xx(i-1);
+end
+
+for i=1:m
+   fprintf('   put %d item%d in the bag\n',xx(i),i);
+end
+
+end
+
